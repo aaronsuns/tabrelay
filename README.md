@@ -41,6 +41,7 @@ Project page: [tabrelay.zexa.se](https://tabrelay.zexa.se) · by [Aaron Sun](htt
 - [macOS notes](#macos-notes)
 - [Security](#security)
 - [FAQ](#faq)
+- [Development and releasing](#development)
 - [Disclaimer](#disclaimer)
 
 ## Why not Playwright, Puppeteer or Selenium?
@@ -61,15 +62,25 @@ only, and a page can tell a debugger is attached) but needs nothing besides Chro
 
 Tabrelay is **not on the Chrome Web Store**; you load it as an unpacked extension.
 
-1. Get the code:
-   ```sh
-   git clone https://github.com/aaronsuns/tabrelay.git
-   cd tabrelay
-   ```
+1. Get the code, either a release or a git checkout:
+   - **Release:** download `tabrelay-VERSION.tar.gz` from the
+     [latest release](https://github.com/aaronsuns/tabrelay/releases/latest) and unpack it:
+     ```sh
+     tar -xzf tabrelay-0.1.0.tar.gz
+     cd tabrelay-0.1.0
+     ```
+   - **Git:**
+     ```sh
+     git clone https://github.com/aaronsuns/tabrelay.git
+     cd tabrelay
+     ```
 2. Run `./bin/tabrelay config` once. It creates `extension/token.json` (the local secret the
    extension checks; git ignores it) and shows the paths in use.
 3. In Chrome open `chrome://extensions`, turn on **Developer mode** (top right), click
-   **Load unpacked** and pick the `extension/` folder of the checkout.
+   **Load unpacked** and pick the `extension/` folder inside that folder. Load this one rather
+   than a copy elsewhere: the command and the extension share `extension/token.json`. (Each
+   release also has `tabrelay-extension-VERSION.zip`, the extension folder on its own; if you
+   load that, copy your `extension/token.json` into it first.)
 4. The **Tabrelay: allowed sites** page opens. Add the domains your scripts need (one per line,
    e.g. `example.com`) and **Save**. You can come back to it any time:
    `chrome://extensions` → Tabrelay → **Details** → **Extension options**.
@@ -367,12 +378,39 @@ shadow the standard Unix `tr` command.)
 ## Development
 
 ```sh
-scripts/check.sh      # py_compile everything, node --check the extension, python and node unit tests
+scripts/check.sh      # versions agree, py_compile everything, node --check the extension, python and node unit tests
 ```
+
+CI (`.github/workflows/ci.yml`) runs `scripts/check.sh` on Python 3.10 and 3.12 for every push
+to `main` and every pull request.
 
 The tests cover the pure parts: config loading, the server's job routing and request checks,
 keepalive scheduling, the group queue's rule matching and state, and the extension's allow-list.
 After editing the extension, `tabrelay reload` reloads it without a click.
+
+### Releasing
+
+The version lives in two places that must agree (`scripts/version.sh` checks it, and so does
+CI): `__version__` in `tabrelay.py` and `"version"` in `extension/manifest.json`.
+
+1. Bump both to the new version, e.g. `0.2.0`, and run `scripts/check.sh`.
+2. Commit and push to `main`; wait for CI to go green.
+3. Tag and push the tag:
+   ```sh
+   git tag -a v0.2.0 -m "Tabrelay 0.2.0"
+   git push origin v0.2.0
+   ```
+4. The **Release** workflow (`.github/workflows/release.yml`) runs the checks, checks that the
+   tag equals the version, builds `tabrelay-extension-0.2.0.zip` and `tabrelay-0.2.0.tar.gz`
+   with `scripts/build-release.sh` (from tracked files only, so no `token.json`), and publishes
+   a GitHub release with install notes. Watch it with `gh run watch`.
+5. If it fails: fix on `main`, then move the tag (`git tag -d v0.2.0 && git push origin :v0.2.0`,
+   re-tag, push again). A re-run on an existing release replaces its assets.
+
+`scripts/build-release.sh` also works locally (output in `dist/`, ignored by git).
+
+The project page [tabrelay.zexa.se](https://tabrelay.zexa.se) is `site/` (a static page served
+by Cloudflare Workers): `cd site && npx wrangler@4 deploy`.
 
 ## Disclaimer
 

@@ -1,7 +1,9 @@
 #!/bin/sh
-# Run every cheap check: Python syntax, extension JS syntax, unit tests (Python and node).
+# Run every cheap check: versions agree, Python syntax, extension JS syntax, unit tests (Python and node).
 set -e
 cd "$(dirname "$0")/.."
+echo "== version"
+scripts/version.sh
 echo "== python -m py_compile"
 python3 - <<'PY'
 import glob, py_compile, sys

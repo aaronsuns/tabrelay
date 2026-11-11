@@ -10,3 +10,6 @@ __pycache__/
 config.json
 *.state.json
 shots/
+
+# release builds (scripts/build-release.sh)
+dist/
