@@ -1,0 +1,12 @@
+# the local secret shared by the tabrelay command and the extension (made on first use)
+extension/token.json
+token.json
+
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+# your own config, queues and screenshots if you keep them in the checkout
+config.json
+*.state.json
+shots/

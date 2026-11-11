@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tabrelay: allowed sites</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+  textarea { width: 100%; min-height: 16rem; font: 14px/1.5 ui-monospace, monospace; box-sizing: border-box; }
+  .warn { color: #b45309; }
+  .ok { color: #15803d; }
+  code { font-size: 90%; }
+  button { font-size: 15px; padding: .4rem 1rem; }
+</style>
+</head>
+<body>
+<h1>Tabrelay: allowed sites</h1>
+<p>Tabrelay only opens, reads or controls <b>https</b> pages on these domains (and their subdomains).
+One domain per line; <code>#</code> starts a comment. <code>example.com</code> also covers
+<code>www.example.com</code> and <code>app.example.com</code>.</p>
+<p>This list is stored in this Chrome profile only. The <code>tabrelay</code> command cannot change it:
+only this page can. Keep it as short as your scripts need.</p>
+<textarea id="list" spellcheck="false" placeholder="# for example&#10;example.com&#10;studio.youtube.com&#10;github.com"></textarea>
+<p><button id="save">Save</button> <span id="status"></span></p>
+<p id="invalid" class="warn"></p>
+<script type="module" src="options.js"></script>
+</body>
+</html>
