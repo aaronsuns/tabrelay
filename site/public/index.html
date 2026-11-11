@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabrelay: drive your logged-in Chrome from the CLI or an AI agent</title>
+<meta name="description" content="Tabrelay lets scripts and AI agents drive your real, logged-in Chrome from the command line, without stealing focus. Free and open source (MIT).">
+<link rel="canonical" href="https://tabrelay.zexa.se/">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0f766e">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tabrelay">
+<meta property="og:title" content="Tabrelay: drive your logged-in Chrome from the CLI or an AI agent">
+<meta property="og:description" content="A Python command plus a Chrome extension: open pages, run JavaScript, click, type and upload in the browser you already use, without stealing focus.">
+<meta property="og:url" content="https://tabrelay.zexa.se/">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tabrelay: drive your real, logged-in Chrome from the command line or an AI agent">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Tabrelay",
+  "url": "https://tabrelay.zexa.se/",
+  "image": "https://tabrelay.zexa.se/og.png",
+  "description": "A Python command-line tool and local server plus a Chrome extension that let scripts and AI agents drive your real, logged-in Chrome through the DevTools Protocol, without stealing focus.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux",
+  "softwareRequirements": "Google Chrome or Chromium, Python 3.10+",
+  "keywords": "browser automation, Chrome extension, CLI, AI agent, Chrome DevTools Protocol, chrome.debugger, logged-in browser, no focus stealing",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "author": {"@type": "Person", "name": "Aaron Sun"},
+  "publisher": {"@type": "Organization", "name": "Zexa", "url": "https://zexa.se"},
+  "downloadUrl": "https://github.com/aaronsuns/tabrelay/releases/latest",
+  "codeRepository": "https://github.com/aaronsuns/tabrelay"
+}
+</script>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f7faf9;
+  --surface: #ffffff;
+  --text: #13201f;
+  --muted: #52625f;
+  --border: #d9e3e0;
+  --accent: #0f766e;
+  --accent-soft: #e0f2ef;
+  --term-bg: #0b1416;
+  --term-text: #e6efed;
+  --term-dim: #7f9894;
+  --term-prompt: #5eead4;
+  --warn-bg: #fff7e6;
+  --warn-border: #f0d7a1;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1214;
+    --surface: #111b1e;
+    --text: #e6efed;
+    --muted: #9db0ac;
+    --border: #23353a;
+    --accent: #5eead4;
+    --accent-soft: #12302d;
+    --term-bg: #061012;
+    --warn-bg: #2a2214;
+    --warn-border: #5a4722;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--accent); }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+header.top { display: flex; align-items: center; gap: 12px; padding: 20px 0; }
+header.top img { width: 36px; height: 36px; }
+header.top .name { font-weight: 700; font-size: 20px; }
+header.top nav { margin-left: auto; display: flex; gap: 16px; font-size: 15px; }
+header.top nav a { color: var(--muted); text-decoration: none; }
+header.top nav a:hover { color: var(--accent); }
+.hero { padding: 40px 0 24px; }
+h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.02em; }
+.lead { font-size: clamp(18px, 2.6vw, 21px); color: var(--muted); margin: 0 0 24px; max-width: 46em; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  display: inline-block; padding: 11px 18px; border-radius: 10px; font-weight: 600;
+  text-decoration: none; border: 1px solid var(--accent);
+}
+.btn.primary { background: var(--accent); color: var(--bg); }
+.btn.ghost { color: var(--accent); }
+section { padding: 28px 0; border-top: 1px solid var(--border); }
+h2 { font-size: 26px; margin: 0 0 14px; letter-spacing: -0.01em; }
+h3 { font-size: 18px; margin: 0 0 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.card p { margin: 0; color: var(--muted); font-size: 16px; }
+pre, code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+code { font-size: 0.92em; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; }
+pre {
+  margin: 0; background: var(--term-bg); color: var(--term-text); border-radius: 12px;
+  padding: 18px; overflow-x: auto; font-size: 14.5px; line-height: 1.55;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.p { color: var(--term-prompt); user-select: none; }
+.c { color: var(--term-dim); }
+.flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px;
+}
+.flow .node {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; text-align: center; font-weight: 600; font-size: 15px;
+}
+.flow .node small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.flow .arrow { color: var(--accent); font-size: 22px; line-height: 1; }
+@media (max-width: 620px) {
+  .flow { flex-direction: column; align-items: stretch; }
+  .flow .arrow { text-align: center; transform: rotate(90deg); }
+  header.top nav { display: none; }
+}
+ol, ul { padding-left: 1.3em; }
+li { margin: 4px 0; }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 12px; padding: 14px 18px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin: 0; }
+footer { border-top: 1px solid var(--border); padding: 28px 0 40px; color: var(--muted); font-size: 15px; }
+footer .links { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img src="icon.svg" alt="" width="36" height="36">
+    <span class="name">Tabrelay</span>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#security">Security</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/aaronsuns/tabrelay">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>Drive your real, logged-in Chrome from the command line or an AI agent.</h1>
+      <p class="lead">Tabrelay is a small Python command plus a Chrome extension. Open pages, run JavaScript,
+        click, type, upload files and take screenshots in the browser you already use, with your profile,
+        cookies, logins and 2FA, while you keep working in the foreground.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/aaronsuns/tabrelay/releases/latest">Download the latest release</a>
+        <a class="btn ghost" href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>
+      </div>
+    </div>
+
+    <section aria-labelledby="why">
+      <h2 id="why">Why Tabrelay</h2>
+      <div class="grid">
+        <div class="card"><h3>Your real browser</h3><p>No separate automation browser to log in to, no copied cookies, no test profile. Jobs run in the Chrome you use every day.</p></div>
+        <div class="card"><h3>No focus stealing</h3><p>Jobs run in background windows and tabs, and pages are told they have focus, so uploads and lazy pages keep working while you type elsewhere.</p></div>
+        <div class="card"><h3>Several profiles</h3><p>Load the extension in each Chrome profile; every job goes to exactly the profile you name.</p></div>
+        <div class="card"><h3>CLI first</h3><p>Every action is a shell command that prints plain text or JSON, so any script, cron job or AI agent that can run a command can use it.</p></div>
+      </div>
+    </section>
+
+    <section id="how" aria-labelledby="how-h">
+      <h2 id="how-h">How it works</h2>
+      <div class="flow" role="img" aria-label="The tabrelay command talks to a local server on localhost, the Chrome extension picks up jobs from it and runs them on the page through the Chrome DevTools Protocol">
+        <div class="node">tabrelay<small>CLI or Python</small></div>
+        <span class="arrow" aria-hidden="true">⇄</span>
+        <div class="node">127.0.0.1:47833<small>local server</small></div>
+        <span class="arrow" aria-hidden="true">⇄</span>
+        <div class="node">Extension<small>in your Chrome</small></div>
+        <span class="arrow" aria-hidden="true">⇄</span>
+        <div class="node">CDP<small>chrome.debugger</small></div>
+        <span class="arrow" aria-hidden="true">⇄</span>
+        <div class="node">The page<small>an allowed site</small></div>
+      </div>
+      <p>The command queues a job on a small server bound to localhost. The extension picks it up and carries it
+        out with the Chrome DevTools Protocol, then sends the result back. Python 3.10+ standard library only,
+        no build step, no npm.</p>
+      <pre><code><span class="p">$ </span>tabrelay ping
+<span class="c">{"ok": true, "version": "0.1.0", "profile": "you@example.com", "sites": 1}</span>
+<span class="p">$ </span>TAB=$(tabrelay open https://example.com/)   <span class="c"># new background window</span>
+<span class="p">$ </span>tabrelay eval "$TAB" 'document.title'
+<span class="c">"Example Domain"</span>
+<span class="p">$ </span>tabrelay click "$TAB" 'document.querySelector("a")'
+<span class="p">$ </span>tabrelay shot "$TAB" example.png
+<span class="p">$ </span>tabrelay close "$TAB"</code></pre>
+      <p>It is also a Python module: <code>evaluate</code>, <code>wait_for</code>, <code>click</code>,
+        <code>fill_lines</code>, <code>set_files</code>, <code>shot</code> and raw <code>cdp</code> calls for
+        your own scripts.</p>
+    </section>
+
+    <section id="security" aria-labelledby="security-h">
+      <h2 id="security-h">Security model</h2>
+      <div class="grid">
+        <div class="card"><h3>A local token</h3><p>A random secret, created on first use with mode 600. The server only accepts jobs that carry it, and the extension only runs jobs that carry it.</p></div>
+        <div class="card"><h3>Localhost only</h3><p>The server binds to 127.0.0.1 and refuses foreign <code>Host</code> headers and web page origins, so websites you visit can't drive it.</p></div>
+        <div class="card"><h3>Allow-list in the extension</h3><p>The extension acts only on sites you listed in its own options page. Nothing the command line sends can widen that list.</p></div>
+      </div>
+      <p>No telemetry: the extension talks to 127.0.0.1 and the pages it drives, nothing else. It is a guard
+        rail, not a sandbox; read the <a href="https://github.com/aaronsuns/tabrelay#security">security notes</a>
+        before you let an agent loose.</p>
+    </section>
+
+    <section id="install" aria-labelledby="install-h">
+      <h2 id="install-h">Install</h2>
+      <ol>
+        <li>Download <code>tabrelay-VERSION.tar.gz</code> from the
+          <a href="https://github.com/aaronsuns/tabrelay/releases/latest">latest release</a> and unpack it.</li>
+        <li>Run <code>./bin/tabrelay config</code> once to create the local token.</li>
+        <li>In Chrome open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click
+          <strong>Load unpacked</strong> and pick the <code>extension/</code> folder.</li>
+        <li>Add the sites you want to automate on the extension's options page, then run
+          <code>./bin/tabrelay ping</code>.</li>
+      </ol>
+      <p>Needs Chrome (or another Chromium browser with <code>chrome.debugger</code>) and Python 3.10 or newer.
+        Used on macOS and Linux. Not on the Chrome Web Store, on purpose: you run the code you can read.</p>
+    </section>
+
+    <section aria-labelledby="sites-h">
+      <h2 id="sites-h">Site scripts</h2>
+      <p>The repository includes example scripts for sites without a usable posting API for individuals:
+        video uploads to several social sites, Discord messages, and a slow, rule-reading queue for Facebook
+        groups. Each takes <code>--draft</code> so you can check everything before it is published.</p>
+      <div class="note">
+        <p><strong>Your browser, your accounts, your responsibility.</strong> Follow each site's terms and automation
+          rules and each community's rules. No spam, mass posting or fake engagement. Tabrelay is not affiliated
+          with any of those sites, scripts break when sites change, and automated use can get an account limited.</p>
+        <p>Read the full <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">disclaimer</a>.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="oss-h">
+      <h2 id="oss-h">Free and open source</h2>
+      <p>Tabrelay is free and open source under the MIT licence. Bug reports and ideas are welcome as
+        <a href="https://github.com/aaronsuns/tabrelay/issues">GitHub issues</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="links">
+      <a href="https://github.com/aaronsuns/tabrelay">Repository</a>
+      <a href="https://github.com/aaronsuns/tabrelay/releases">Releases</a>
+      <a href="https://github.com/aaronsuns/tabrelay/issues">Issues</a>
+      <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>
+      <a href="https://github.com/aaronsuns/tabrelay/blob/main/LICENSE">MIT licence</a>
+    </div>
+    <p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a></p>
+  </footer>
+</div>
+</body>
+</html>
