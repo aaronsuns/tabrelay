@@ -7,7 +7,7 @@ For each server: open its preview (/channels/<id>), click "Join <server>", then 
 onboarding: question screens are skipped (no notification roles), the rules screen is scrolled to
 the end and accepted with Finish. Prints: joined / already member / CAPTCHA / CHECK (see shot).
 
-A captcha (hCaptcha) or an outside verification (Bloxlink, a website sign-in) needs you: the
+A captcha (hCaptcha) or an outside verification (a verification bot, a website sign-in) needs you: the
 script brings that tab to the front, prints CAPTCHA and leaves the tab open for you. Read each
 server's rules and ad channels before posting (post_discord.py --survey, then read #rules /
 #how-to-advertise). Never post in honeypot / "do not type" channels.

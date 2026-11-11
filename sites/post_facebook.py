@@ -5,7 +5,7 @@ dialog in the logged-in Chrome, via Tabrelay.
   post_facebook.py VIDEO.mp4 META.json [--draft] [--again] [--shots DIR] [--tab TAB]
 
 META.json: {"text": ["line", ...], "audience": "Public"}   (audience: Public | Friends;
-the profile's default is Friends, so promos set Public)
+a profile may default to Friends)
 """
 import json
 import os
