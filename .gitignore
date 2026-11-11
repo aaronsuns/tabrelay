@@ -13,3 +13,6 @@ shots/
 
 # release builds (scripts/build-release.sh)
 dist/
+
+# wrangler cache
+.wrangler/
