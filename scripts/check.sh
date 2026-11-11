@@ -19,5 +19,5 @@ echo "$(ls extension/*.js | wc -l | tr -d ' ') files ok"
 echo "== python -m unittest"
 python3 -m unittest discover -s tests -t . "$@"
 echo "== node --test"
-node --test tests/
+node --test tests/*.test.mjs
 echo "all checks passed"
