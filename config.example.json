@@ -1,0 +1,17 @@
+{
+  "profile": "you@example.com",
+  "keepalive": {
+    "youtube-studio": {
+      "url": "https://studio.youtube.com/",
+      "every": 720,
+      "marker": "Dashboard|Channel content",
+      "login": "https://studio.youtube.com/"
+    },
+    "github": {
+      "url": "https://github.com/notifications",
+      "every": 1440,
+      "marker": "Notifications",
+      "login": "https://github.com/login"
+    }
+  }
+}
