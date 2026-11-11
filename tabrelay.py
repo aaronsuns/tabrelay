@@ -21,7 +21,7 @@ signed in to, on the sites you allowed in the extension's options page only.
   tabrelay reload                    reload the extension from disk after editing it
   tabrelay reload-ext NAME|ID        reload another unpacked extension (macOS, Apple Events)
   tabrelay log                       what the site scripts have posted (posted.jsonl)
-  tabrelay config                    show the config file, data dir and profile in use
+  tabrelay config                    show the config file, data dir and profile in use (creates the token)
 
 Environment: TABRELAY_PROFILE (Chrome profile to use: the Google account email the profile is
 signed in to), TABRELAY_CONFIG (config file path), TABRELAY_DATA_DIR, TABRELAY_FRONT=1.
@@ -611,6 +611,7 @@ def main(argv=None):
         p = os.path.join(LOG_DIR, "posted.jsonl")
         print(open(p).read() if os.path.exists(p) else "(nothing posted yet)")
     elif cmd == "config":
+        token()  # create the token on first use, so the extension can be loaded right away
         print(json.dumps({"config": config_path(), "config_exists": os.path.exists(config_path()),
                           "profile": PROFILE or "(any)", "data_dir": LOG_DIR, "token_file": TOKEN_FILE,
                           "port": PORT}, indent=2))
