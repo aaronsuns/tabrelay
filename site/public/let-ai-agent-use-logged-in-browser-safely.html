@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let an AI agent use your logged-in browser safely</title>
+<meta name="description" content="Risks and guard rails when an AI agent drives your logged-in Chrome: allow-lists, tokens, localhost-only server, draft mode, and what Tabrelay cannot protect.">
+<link rel="canonical" href="https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Let an AI agent use your logged-in browser safely">
+<meta property="og:description" content="Risks and guard rails when an AI agent drives your logged-in Chrome: allow-lists, tokens, localhost-only server, draft mode, and what Tabrelay cannot protect.">
+<meta property="og:url" content="https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:site_name" content="Tabrelay">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/guide.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Tabrelay",
+   "item": "https://tabrelay.zexa.se/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Let an AI agent use your logged-in browser safely",
+   "item": "https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Can the agent add sites to the allow-list?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. The allow-list is stored in the extension and only its options page can change it. Nothing sent from the command line can widen it."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is Tabrelay a sandbox?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. It is a guard rail. Any program running as you can read the token, and JavaScript in an allowed page can do whatever that page can do."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How do I stop an agent from posting something by mistake?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Use --draft on the posting scripts so they fill everything without submitting, and review the screenshots from --shots first."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can websites control Tabrelay?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The server only listens on 127.0.0.1, refuses foreign Host headers and requests with a web page Origin, and requires the token, so websites you visit cannot drive it."
+   }
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "How to let an AI agent use your logged-in browser safely",
+ "url": "https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely",
+ "inLanguage": "en",
+ "author": {
+  "@type": "Person",
+  "name": "Aaron Sun"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "Zexa",
+  "url": "https://zexa.se"
+ },
+ "datePublished": "2026-11-16",
+ "dateModified": "2026-11-16"
+}
+</script>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="28" height="28">Tabrelay</a>
+  <nav><a href="/#guides">Guides</a><a href="https://github.com/aaronsuns/tabrelay">GitHub</a></nav>
+</div></div>
+<main>
+<p class="crumbs"><a href="/">Tabrelay</a> / Let an AI agent use your logged-in browser safely</p>
+<h1>How to let an AI agent use your logged-in browser safely</h1>
+<p class="lead">Your logged-in browser holds your email, code hosting, bank and social accounts. Handing it to an agent needs limits. This page lists the risks and how Tabrelay fences them in, including the parts it cannot.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+
+<h2>The risks of an agent in your real browser</h2>
+<ul>
+<li><strong>Too much reach.</strong> An agent that can drive any tab can act on any account you are logged in to.</li>
+<li><strong>Mistakes.</strong> Agents click the wrong thing, post the wrong text or submit a form half-filled.</li>
+<li><strong>Injection.</strong> Text on a web page can try to steer an agent that reads it.</li>
+<li><strong>Open ports.</strong> A remote debugging port on your browser is open to every program that can reach it.</li>
+</ul>
+<p>No tool removes all of these. The aim is to shrink the blast radius.</p>
+
+<h2>Guard rails in Tabrelay</h2>
+<h3>A site allow-list the agent cannot change</h3>
+<p>The extension acts only on https pages whose host is on a list in its own storage. Only the extension's options page can edit it; nothing sent from the command line can widen it. It checks the tab's current URL on every command, refuses to open or navigate to other sites, and refuses a few DevTools commands that reach beyond the tab, such as the cookies of all sites. Keep the list as short as the task needs.</p>
+<h3>A local token</h3>
+<p><code>extension/token.json</code> is a random secret created on first use with mode 600 and ignored by git. The server accepts jobs only with it, and the extension runs only jobs that carry it.</p>
+<h3>Localhost only</h3>
+<p>The server binds to <code>127.0.0.1:47833</code>, refuses requests whose Host is not 127.0.0.1 or localhost (DNS rebinding) and requests with a web page Origin, so websites you visit cannot drive it. Never expose or forward that port.</p>
+<h3>Visible debugging</h3>
+<p>Chrome shows a "started debugging this browser" bar whenever the extension debugs a tab, and <code>tabrelay detach</code> removes it afterwards.</p>
+<h3>No telemetry</h3>
+<p>The extension talks only to 127.0.0.1:47833 and to the pages it drives.</p>
+
+<h2>What Tabrelay does not protect you from</h2>
+<ul>
+<li>Any program running as you can read the token file. It is not a sandbox against software you already run.</li>
+<li>JavaScript in an allowed page can do whatever that page can do.</li>
+<li>The <code>debugger</code> permission is powerful: on a tab it can read and change everything, including form fields and network traffic.</li>
+</ul>
+
+<h2>Habits that help</h2>
+<ol>
+<li>Allow only the sites the task needs, and remove them afterwards.</li>
+<li>Use a separate Chrome profile for agent work and route to it with <code>TABRELAY_PROFILE</code>.</li>
+<li>Prefer <code>--draft</code> on posting scripts: it fills everything and does not submit. Review, then run for real.</li>
+<li>Use <code>--shots DIR</code> to screenshot each step so you can see what happened.</li>
+<li>Tell the agent in <code>CLAUDE.md</code> or <code>AGENTS.md</code> to stay inside the allow-list and to close tabs when done.</li>
+<li>Follow each site's terms and automation rules. Tabrelay is for your own browser and accounts, not spam or fake engagement.</li>
+</ol>
+<p>Read the <a href="https://github.com/aaronsuns/tabrelay#security">security section of the README</a> and the <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">disclaimer</a>. Overview: <a href="/browser-automation-for-ai-agents">browser automation for AI agents</a>.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Can the agent add sites to the allow-list?</h3>
+<p>No. The allow-list is stored in the extension and only its options page can change it. Nothing sent from the command line can widen it.</p>
+<h3>Is Tabrelay a sandbox?</h3>
+<p>No. It is a guard rail. Any program running as you can read the token, and JavaScript in an allowed page can do whatever that page can do.</p>
+<h3>How do I stop an agent from posting something by mistake?</h3>
+<p>Use --draft on the posting scripts so they fill everything without submitting, and review the screenshots from --shots first.</p>
+<h3>Can websites control Tabrelay?</h3>
+<p>The server only listens on 127.0.0.1, refuses foreign Host headers and requests with a web page Origin, and requires the token, so websites you visit cannot drive it.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+</main>
+<footer>
+<p><strong>More from Tabrelay</strong></p>
+<ul><li><a href="/">Tabrelay home page</a></li><li><a href="/control-chrome-from-command-line">Control Chrome from the command line</a></li><li><a href="/puppeteer-playwright-alternative-logged-in-chrome">Playwright and Puppeteer with a logged-in Chrome</a></li><li><a href="/browser-automation-for-ai-agents">Browser automation for AI agents</a></li><li><a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</a></li><li><a href="/automate-chrome-without-stealing-focus">Automate Chrome without stealing focus</a></li></ul>
+<p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a> · <a href="https://github.com/aaronsuns/tabrelay">GitHub</a><br>Tabrelay is for automating your own browser and accounts, and is not affiliated with any site it can drive. <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>.</p>
+</footer>
+</body>
+</html>

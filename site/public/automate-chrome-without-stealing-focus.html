@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automate Chrome in the background without stealing focus</title>
+<meta name="description" content="Run browser jobs while you keep working: background windows, focus emulation, multiple Chrome profiles and a keepalive that stops sites logging you out.">
+<link rel="canonical" href="https://tabrelay.zexa.se/automate-chrome-without-stealing-focus">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Automate Chrome in the background without stealing focus">
+<meta property="og:description" content="Run browser jobs while you keep working: background windows, focus emulation, multiple Chrome profiles and a keepalive that stops sites logging you out.">
+<meta property="og:url" content="https://tabrelay.zexa.se/automate-chrome-without-stealing-focus">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:site_name" content="Tabrelay">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/guide.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Tabrelay",
+   "item": "https://tabrelay.zexa.se/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Automate Chrome without stealing focus",
+   "item": "https://tabrelay.zexa.se/automate-chrome-without-stealing-focus"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Does Tabrelay raise Chrome windows?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Not normally. Jobs run in background windows and tabs. Raising the window is a last resort, with TABRELAY_FRONT=1 or front(tab, force=True)."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Why do some pages stall in the background?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Chrome throttles hidden windows. Focus emulation handles most pages, but a few sites, such as a video preview that never loads, still need the window raised."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How do I stop a site logging me out?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Use keepalive.py. It visits sites on a schedule in an inactive background tab, checks that you are still logged in and notifies you if not."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How do I choose which Chrome profile a job uses?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Set profile in the config file to the Google account email of that profile, or use TABRELAY_PROFILE for one command."
+   }
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "Automate Chrome in the background without stealing focus",
+ "url": "https://tabrelay.zexa.se/automate-chrome-without-stealing-focus",
+ "inLanguage": "en",
+ "author": {
+  "@type": "Person",
+  "name": "Aaron Sun"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "Zexa",
+  "url": "https://zexa.se"
+ },
+ "datePublished": "2026-11-16",
+ "dateModified": "2026-11-16"
+}
+</script>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="28" height="28">Tabrelay</a>
+  <nav><a href="/#guides">Guides</a><a href="https://github.com/aaronsuns/tabrelay">GitHub</a></nav>
+</div></div>
+<main>
+<p class="crumbs"><a href="/">Tabrelay</a> / Automate Chrome without stealing focus</p>
+<h1>Automate Chrome in the background without stealing focus</h1>
+<p class="lead">Automation that pops a window in front of you every few minutes gets turned off. Tabrelay jobs run in background windows and tabs, so you can keep typing while they work.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+
+<h2>Why automation steals focus</h2>
+<p>Browsers throttle pages that are hidden or behind other windows, and sites such as uploaders and lazy-loaded pages may not finish until they believe they have focus. The usual workaround is to bring the window to the front, which interrupts you.</p>
+
+<h2>Background windows and focus emulation</h2>
+<p><code>tabrelay open URL</code> opens a new <em>unfocused</em> window and prints the tab id. When a script calls <code>front(tab)</code>, Tabrelay uses focus emulation and an active lifecycle state, so the page is told it has focus and keeps working without being raised. That is what keeps file uploads and lazy pages working while you type in another app.</p>
+<pre><code>tab = tr.job("open", url="https://example.com/")["tabId"]
+tr.front(tab)                       # focus emulation, no raise
+tr.wait_for(tab, "document.readyState == 'complete'", 30)</code></pre>
+<p>If a site still stalls in the background (a <code>&lt;video&gt;</code> preview that never loads, for example), set <code>TABRELAY_FRONT=1</code> or use <code>front(tab, force=True)</code> to raise the window as a last resort. On macOS, Chrome throttles windows that are hidden or behind others, so this is where you are most likely to need it.</p>
+
+<h2>Several Chrome profiles</h2>
+<p>Load the same <code>extension/</code> folder in each profile. Each reports the Google account its profile is signed in to, and the server keeps one queue per account. <code>tabrelay profiles</code> lists the connected copies. Choose one with <code>profile</code> in <code>~/.config/tabrelay/config.json</code> or with <code>TABRELAY_PROFILE=ACCOUNT_EMAIL tabrelay tabs</code>. With several profiles connected and none chosen, a job goes to whichever asks first, so set one.</p>
+
+<h2>Keep logins alive with keepalive</h2>
+<p>Some sites end a session after a few hours without a visit. <code>keepalive.py</code> visits each site from the <code>keepalive</code> section of your config in an inactive background tab, waits for the page to refresh its session, checks for a marker that only the logged-in page shows, and closes the tab. A lost login raises a desktop notification with the login URL. It never starts Chrome; if Chrome is not running, the run is skipped.</p>
+<pre><code>./keepalive.py --only github     # test one site now
+./keepalive.py --status          # last visit and state per site
+scripts/install-keepalive.sh     # macOS: every 30 minutes with launchd</code></pre>
+<p>On Linux a cron line does the same. Remember that every site you add to a keepalive also needs to be on the extension's allow-list.</p>
+
+<h2>Be a good guest</h2>
+<p>Run jobs at a human pace, give scripts a <code>--draft</code> mode while you build them, and follow each site's terms of service and automation rules. See <a href="/let-ai-agent-use-logged-in-browser-safely">using a logged-in browser safely</a>.</p>
+<p>More: <a href="/control-chrome-from-command-line">control Chrome from the command line</a>. Download Tabrelay from the <a href="https://github.com/aaronsuns/tabrelay/releases/latest">latest release</a>.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Does Tabrelay raise Chrome windows?</h3>
+<p>Not normally. Jobs run in background windows and tabs. Raising the window is a last resort, with TABRELAY_FRONT=1 or front(tab, force=True).</p>
+<h3>Why do some pages stall in the background?</h3>
+<p>Chrome throttles hidden windows. Focus emulation handles most pages, but a few sites, such as a video preview that never loads, still need the window raised.</p>
+<h3>How do I stop a site logging me out?</h3>
+<p>Use keepalive.py. It visits sites on a schedule in an inactive background tab, checks that you are still logged in and notifies you if not.</p>
+<h3>How do I choose which Chrome profile a job uses?</h3>
+<p>Set profile in the config file to the Google account email of that profile, or use TABRELAY_PROFILE for one command.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+</main>
+<footer>
+<p><strong>More from Tabrelay</strong></p>
+<ul><li><a href="/">Tabrelay home page</a></li><li><a href="/control-chrome-from-command-line">Control Chrome from the command line</a></li><li><a href="/puppeteer-playwright-alternative-logged-in-chrome">Playwright and Puppeteer with a logged-in Chrome</a></li><li><a href="/browser-automation-for-ai-agents">Browser automation for AI agents</a></li><li><a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</a></li><li><a href="/let-ai-agent-use-logged-in-browser-safely">Let an AI agent use your logged-in browser safely</a></li></ul>
+<p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a> · <a href="https://github.com/aaronsuns/tabrelay">GitHub</a><br>Tabrelay is for automating your own browser and accounts, and is not affiliated with any site it can drive. <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>.</p>
+</footer>
+</body>
+</html>

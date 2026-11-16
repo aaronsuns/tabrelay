@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabrelay vs Playwright MCP, browser-use, Claude in Chrome</title>
+<meta name="description" content="A fair comparison of ways to give AI agents a browser: Tabrelay, Playwright MCP, Chrome DevTools MCP, browser-use and Claude in Chrome, and where each fits.">
+<link rel="canonical" href="https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Tabrelay vs Playwright MCP, browser-use, Claude in Chrome">
+<meta property="og:description" content="A fair comparison of ways to give AI agents a browser: Tabrelay, Playwright MCP, Chrome DevTools MCP, browser-use and Claude in Chrome, and where each fits.">
+<meta property="og:url" content="https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:site_name" content="Tabrelay">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/guide.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Tabrelay",
+   "item": "https://tabrelay.zexa.se/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Tabrelay vs Playwright MCP, browser-use and Claude in Chrome",
+   "item": "https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Is Tabrelay an alternative to Playwright MCP?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "For agents with a shell tool, partly: both let an agent act in a browser. Tabrelay uses your own logged-in Chrome through an extension and a CLI. Playwright MCP is an MCP server built on Playwright. Tabrelay is not an MCP server."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is Tabrelay an alternative to browser-use?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "They sit at different layers. browser-use includes an LLM agent loop. Tabrelay has no model; it carries out commands from your own script or agent."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How is it different from Claude in Chrome?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Claude in Chrome is an Anthropic extension with Claude built in. Tabrelay is a primitive for your own scripts and agents, with a site allow-list you control."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can I use more than one?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. They solve different parts of the problem, and Tabrelay can sit next to an MCP server for other tasks."
+   }
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "Tabrelay vs Playwright MCP, browser-use and Claude in Chrome",
+ "url": "https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome",
+ "inLanguage": "en",
+ "author": {
+  "@type": "Person",
+  "name": "Aaron Sun"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "Zexa",
+  "url": "https://zexa.se"
+ },
+ "datePublished": "2026-11-16",
+ "dateModified": "2026-11-16"
+}
+</script>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="28" height="28">Tabrelay</a>
+  <nav><a href="/#guides">Guides</a><a href="https://github.com/aaronsuns/tabrelay">GitHub</a></nav>
+</div></div>
+<main>
+<p class="crumbs"><a href="/">Tabrelay</a> / Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</p>
+<h1>Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</h1>
+<p class="lead">There are now many ways to let an AI agent use a browser. They differ in whose browser it is, how the agent talks to it, and who decides what to click. This is a careful comparison.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+
+<p class="note">Tabrelay is written by the author of this page. These tools change quickly, and this page only states what is well established; check each project's own documentation for current features and modes.</p>
+
+<h2>The three questions that matter</h2>
+<ol>
+<li><strong>Whose browser?</strong> A fresh one the tool starts, a persistent profile of its own, or the Chrome you already use.</li>
+<li><strong>How does the agent talk to it?</strong> A shell command, an MCP server, a library or a built-in extension.</li>
+<li><strong>Who decides what to do?</strong> Your agent, or an agent built into the tool.</li>
+</ol>
+
+<h2>Tabrelay</h2>
+<p>A CLI plus a Chrome extension. It drives your own logged-in Chrome through <code>chrome.debugger</code>, only on an allow-list of sites, and has no model or agent loop of its own: your agent (or script) decides, Tabrelay executes. No MCP server; agents use it through a shell tool. Chrome and Chromium only, no auto-waiting locators, not for headless or server use.</p>
+
+<h2>Playwright MCP</h2>
+<p>An MCP server from the Playwright project that exposes browser actions to MCP-capable agents. It is built on Playwright, so it brings Playwright's browser engine and robustness, and an MCP-native interface. By default it works in a browser it manages, with options for the profile it uses and for connecting to an existing browser; read its README for the current modes. Pick it when your agent speaks MCP and you want Playwright's strengths.</p>
+
+<h2>Chrome DevTools MCP</h2>
+<p>An MCP server from the Chrome DevTools team that lets coding agents control and inspect a live Chrome, with a focus on debugging and performance work. Check its documentation for how it connects to a browser. It fits when your agent speaks MCP and the job is inspecting or debugging a page.</p>
+
+<h2>browser-use</h2>
+<p>An open-source Python library for building agents that control a browser with an LLM. It includes the agent loop: you give it a task and a model, and it decides the steps. That is a different layer than Tabrelay. Pick it when you want a ready-made browser agent in Python rather than giving a general agent a browser primitive.</p>
+
+<h2>Claude in Chrome</h2>
+<p>An Anthropic browser extension in which Claude works inside your own Chrome. It is a product with the model built in and a user interface, not a primitive for your own scripts and agents. Pick it when you want Claude to do browser tasks for you interactively; check Anthropic's documentation for availability and plans.</p>
+
+<h2>Side by side</h2>
+<table>
+<tr><th></th><th>Browser</th><th>Interface</th><th>Decides what to do</th></tr>
+<tr><td>Tabrelay</td><td>your own Chrome profile</td><td>CLI, Python module</td><td>your agent or script</td></tr>
+<tr><td>Playwright MCP</td><td>managed by the tool (see its docs for other modes)</td><td>MCP</td><td>your MCP agent</td></tr>
+<tr><td>Chrome DevTools MCP</td><td>a Chrome it controls (see its docs)</td><td>MCP</td><td>your MCP agent</td></tr>
+<tr><td>browser-use</td><td>browser the library controls</td><td>Python library</td><td>an LLM loop built into the library</td></tr>
+<tr><td>Claude in Chrome</td><td>your own Chrome</td><td>extension UI</td><td>Claude, built in</td></tr>
+</table>
+
+<h2>Which one should you use?</h2>
+<ul>
+<li>You want a script or any shell-capable agent to use your existing logins, with a site allow-list: Tabrelay.</li>
+<li>Your agent only speaks MCP and you want a mature automation engine: Playwright MCP.</li>
+<li>You want a Python agent framework: browser-use.</li>
+<li>You want Claude itself to browse for you: Claude in Chrome.</li>
+</ul>
+<p>Related: <a href="/puppeteer-playwright-alternative-logged-in-chrome">Playwright and Puppeteer with a logged-in Chrome</a> and <a href="/browser-automation-for-ai-agents">browser automation for AI agents</a>. Get Tabrelay from the <a href="https://github.com/aaronsuns/tabrelay/releases/latest">latest release</a>.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Is Tabrelay an alternative to Playwright MCP?</h3>
+<p>For agents with a shell tool, partly: both let an agent act in a browser. Tabrelay uses your own logged-in Chrome through an extension and a CLI. Playwright MCP is an MCP server built on Playwright. Tabrelay is not an MCP server.</p>
+<h3>Is Tabrelay an alternative to browser-use?</h3>
+<p>They sit at different layers. browser-use includes an LLM agent loop. Tabrelay has no model; it carries out commands from your own script or agent.</p>
+<h3>How is it different from Claude in Chrome?</h3>
+<p>Claude in Chrome is an Anthropic extension with Claude built in. Tabrelay is a primitive for your own scripts and agents, with a site allow-list you control.</p>
+<h3>Can I use more than one?</h3>
+<p>Yes. They solve different parts of the problem, and Tabrelay can sit next to an MCP server for other tasks.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+</main>
+<footer>
+<p><strong>More from Tabrelay</strong></p>
+<ul><li><a href="/">Tabrelay home page</a></li><li><a href="/control-chrome-from-command-line">Control Chrome from the command line</a></li><li><a href="/puppeteer-playwright-alternative-logged-in-chrome">Playwright and Puppeteer with a logged-in Chrome</a></li><li><a href="/browser-automation-for-ai-agents">Browser automation for AI agents</a></li><li><a href="/let-ai-agent-use-logged-in-browser-safely">Let an AI agent use your logged-in browser safely</a></li><li><a href="/automate-chrome-without-stealing-focus">Automate Chrome without stealing focus</a></li></ul>
+<p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a> · <a href="https://github.com/aaronsuns/tabrelay">GitHub</a><br>Tabrelay is for automating your own browser and accounts, and is not affiliated with any site it can drive. <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>.</p>
+</footer>
+</body>
+</html>

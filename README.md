@@ -23,10 +23,14 @@ tabrelay (Python) ──127.0.0.1:47833──▶ Tabrelay extension (Chrome) ─
 - **Small.** Python 3.10+ standard library only, no build step, no npm. About 1,100 lines
   without the site scripts.
 
+Works with Claude Code and any other AI agent or script that can run a shell command (it is a CLI, not an MCP server).
+
 Project page: [tabrelay.zexa.se](https://tabrelay.zexa.se) · by [Aaron Sun](https://github.com/aaronsuns) · MIT licence
 
 > Tabrelay is for automating **your own** browser and accounts. Read the
 > [Disclaimer](#disclaimer) before you use the site scripts.
+
+Guides: [Control Chrome from the command line](https://tabrelay.zexa.se/control-chrome-from-command-line) · [Playwright and Puppeteer with a logged-in Chrome](https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome) · [Browser automation for AI agents](https://tabrelay.zexa.se/browser-automation-for-ai-agents) · [Tabrelay vs Playwright MCP, browser-use and Claude in Chrome](https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome) · [Let an AI agent use your logged-in browser safely](https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely) · [Automate Chrome without stealing focus](https://tabrelay.zexa.se/automate-chrome-without-stealing-focus)
 
 ## Contents
 

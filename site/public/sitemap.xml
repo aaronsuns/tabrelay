@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://tabrelay.zexa.se/</loc>
-    <lastmod>2026-11-11</lastmod>
-  </url>
+  <url><loc>https://tabrelay.zexa.se/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/automate-chrome-without-stealing-focus</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/browser-automation-for-ai-agents</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/control-chrome-from-command-line</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome</loc><lastmod>2026-11-16</lastmod></url>
 </urlset>

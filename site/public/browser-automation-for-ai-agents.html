@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browser automation for AI agents with your own session</title>
+<meta name="description" content="Give an AI agent your existing logged-in browser session through a plain CLI, with a site allow-list and local token. Works with Claude Code and any shell agent.">
+<link rel="canonical" href="https://tabrelay.zexa.se/browser-automation-for-ai-agents">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Browser automation for AI agents with your own session">
+<meta property="og:description" content="Give an AI agent your existing logged-in browser session through a plain CLI, with a site allow-list and local token. Works with Claude Code and any shell agent.">
+<meta property="og:url" content="https://tabrelay.zexa.se/browser-automation-for-ai-agents">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:site_name" content="Tabrelay">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/guide.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Tabrelay",
+   "item": "https://tabrelay.zexa.se/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Browser automation for AI agents",
+   "item": "https://tabrelay.zexa.se/browser-automation-for-ai-agents"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Is Tabrelay an MCP server?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. It is a command-line tool and a Chrome extension. Agents with a shell tool can run it directly. If you need an MCP interface you would wrap the CLI yourself."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Which AI agents can use it?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Any agent or script that can run a shell command. Tabrelay does not depend on a particular model or agent."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can the agent visit any site in my browser?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. The extension acts only on sites on the allow-list you edit in its options page, and the command line cannot change that list."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Does Tabrelay send my browsing data anywhere?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. The extension talks to 127.0.0.1:47833 and to the pages it drives, nothing else. There is no telemetry."
+   }
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "Browser automation for AI agents that use your existing session",
+ "url": "https://tabrelay.zexa.se/browser-automation-for-ai-agents",
+ "inLanguage": "en",
+ "author": {
+  "@type": "Person",
+  "name": "Aaron Sun"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "Zexa",
+  "url": "https://zexa.se"
+ },
+ "datePublished": "2026-11-16",
+ "dateModified": "2026-11-16"
+}
+</script>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="28" height="28">Tabrelay</a>
+  <nav><a href="/#guides">Guides</a><a href="https://github.com/aaronsuns/tabrelay">GitHub</a></nav>
+</div></div>
+<main>
+<p class="crumbs"><a href="/">Tabrelay</a> / Browser automation for AI agents</p>
+<h1>Browser automation for AI agents that use your existing session</h1>
+<p class="lead">An AI coding agent that can run shell commands can use a browser too, if the browser has a command-line door. Tabrelay is that door for the Chrome you are already logged in to, with limits you set.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+
+<h2>What agents need from a browser</h2>
+<p>Agents that run on your computer usually need three things from a browser: a way to act (open, click, type, run JavaScript, upload), a way to see (evaluate the page, take a screenshot), and access to the accounts you use. Starting a fresh automation browser gives the first two but not the third; you would have to log the agent in, which means giving it credentials or a second set of sessions to maintain.</p>
+
+<h2>A CLI is the simplest agent interface</h2>
+<p>Tabrelay's actions are plain shell commands that print text or JSON and exit non-zero on failure. Any agent that can run a command, such as Claude Code with its shell tool, can use it with no extra protocol:</p>
+<pre><code>TAB=$(tabrelay open https://example.com/)
+tabrelay eval "$TAB" 'document.title'
+tabrelay shot "$TAB" /tmp/page.png      # the agent can read the image
+tabrelay close "$TAB"</code></pre>
+
+<h2>What about MCP?</h2>
+<p>Tabrelay does not ship an MCP server, and it contains no AI model of its own. It is a primitive: the agent decides what to do and Tabrelay carries it out in your browser. With an agent that has a shell tool, you do not need MCP at all. If your agent can only use MCP tools, you would have to wrap the CLI in an MCP server yourself; the commands are simple enough to make that straightforward, but that wrapper is not part of Tabrelay. For MCP servers that do exist for browsers, see the <a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">comparison with Playwright MCP, browser-use and Claude in Chrome</a>.</p>
+
+<h2>Give the agent your session, but fence it in</h2>
+<p>Your logged-in browser is powerful, so the limits matter more than the features. Tabrelay has these:</p>
+<ul>
+<li><strong>Allow-list.</strong> The extension acts only on https pages whose host is on a list you edit in the extension's options page. Nothing the command line sends can widen it, so an agent cannot add sites.</li>
+<li><strong>Local token.</strong> The server only accepts jobs that carry a random secret, and the extension only runs jobs that carry it.</li>
+<li><strong>Localhost only.</strong> The server binds to 127.0.0.1 and refuses foreign Host headers and web page origins, so websites you visit cannot drive it.</li>
+<li><strong>Visible.</strong> Chrome shows its "started debugging this browser" bar while Tabrelay works on a tab.</li>
+</ul>
+<p>These are guard rails, not a sandbox: any program running as you can read the token file, and JavaScript in an allowed page can do whatever that page can do. More in <a href="/let-ai-agent-use-logged-in-browser-safely">letting an AI agent use your logged-in browser safely</a>.</p>
+
+<h2>Several profiles, one agent</h2>
+<p>If you use different Chrome profiles for different accounts, load the extension in each. Each copy reports the Google account its profile is signed in to, and you choose one with the <code>profile</code> setting or the <code>TABRELAY_PROFILE</code> variable. Every job goes to exactly one profile.</p>
+
+<h2>Tell the agent how to use it</h2>
+<p>Add a few lines to your agent's instruction file (such as <code>CLAUDE.md</code> or <code>AGENTS.md</code>): the commands above, the rule that it may only touch the sites on the allow-list, a request to use <code>--draft</code> on posting scripts and to close or detach tabs when done. See <a href="/control-chrome-from-command-line">the command reference</a>.</p>
+<p>Download Tabrelay from the <a href="https://github.com/aaronsuns/tabrelay/releases/latest">latest release</a>.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Is Tabrelay an MCP server?</h3>
+<p>No. It is a command-line tool and a Chrome extension. Agents with a shell tool can run it directly. If you need an MCP interface you would wrap the CLI yourself.</p>
+<h3>Which AI agents can use it?</h3>
+<p>Any agent or script that can run a shell command. Tabrelay does not depend on a particular model or agent.</p>
+<h3>Can the agent visit any site in my browser?</h3>
+<p>No. The extension acts only on sites on the allow-list you edit in its options page, and the command line cannot change that list.</p>
+<h3>Does Tabrelay send my browsing data anywhere?</h3>
+<p>No. The extension talks to 127.0.0.1:47833 and to the pages it drives, nothing else. There is no telemetry.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+</main>
+<footer>
+<p><strong>More from Tabrelay</strong></p>
+<ul><li><a href="/">Tabrelay home page</a></li><li><a href="/control-chrome-from-command-line">Control Chrome from the command line</a></li><li><a href="/puppeteer-playwright-alternative-logged-in-chrome">Playwright and Puppeteer with a logged-in Chrome</a></li><li><a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</a></li><li><a href="/let-ai-agent-use-logged-in-browser-safely">Let an AI agent use your logged-in browser safely</a></li><li><a href="/automate-chrome-without-stealing-focus">Automate Chrome without stealing focus</a></li></ul>
+<p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a> · <a href="https://github.com/aaronsuns/tabrelay">GitHub</a><br>Tabrelay is for automating your own browser and accounts, and is not affiliated with any site it can drive. <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>.</p>
+</footer>
+</body>
+</html>

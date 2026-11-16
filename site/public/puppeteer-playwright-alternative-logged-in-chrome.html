@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puppeteer and Playwright with your logged-in Chrome</title>
+<meta name="description" content="Need Puppeteer or Playwright to use your real, logged-in Chrome? Why that is awkward, what the options are, and when Tabrelay is a simpler alternative.">
+<link rel="canonical" href="https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Puppeteer and Playwright with your logged-in Chrome">
+<meta property="og:description" content="Need Puppeteer or Playwright to use your real, logged-in Chrome? Why that is awkward, what the options are, and when Tabrelay is a simpler alternative.">
+<meta property="og:url" content="https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://tabrelay.zexa.se/og.png">
+<meta property="og:site_name" content="Tabrelay">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/guide.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Tabrelay",
+   "item": "https://tabrelay.zexa.se/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Playwright and Puppeteer with a logged-in Chrome",
+   "item": "https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Can Playwright use my logged-in Chrome profile?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "It can attach to a Chrome started with a remote debugging port, or launch a persistent profile of its own. Neither is quite your everyday Chrome profile, and recent Chrome versions restrict remote debugging on the default profile. Check the current Playwright and Chrome documentation."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is Tabrelay a replacement for Playwright?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. It covers a narrow case, scripting your own logged-in Chrome, and does less: no auto-waiting locators, no browser management, and Chrome or Chromium only."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is a remote debugging port safe?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Any local program that can reach the port can control every site in that browser. Tabrelay avoids opening one: it uses an extension with an allow-list and a local token."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Does Tabrelay need Node?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. It needs Chrome and Python 3.10 or newer, with only the standard library."
+   }
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "Puppeteer and Playwright with your logged-in Chrome: an alternative",
+ "url": "https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome",
+ "inLanguage": "en",
+ "author": {
+  "@type": "Person",
+  "name": "Aaron Sun"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "Zexa",
+  "url": "https://zexa.se"
+ },
+ "datePublished": "2026-11-16",
+ "dateModified": "2026-11-16"
+}
+</script>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="28" height="28">Tabrelay</a>
+  <nav><a href="/#guides">Guides</a><a href="https://github.com/aaronsuns/tabrelay">GitHub</a></nav>
+</div></div>
+<main>
+<p class="crumbs"><a href="/">Tabrelay</a> / Playwright and Puppeteer with a logged-in Chrome</p>
+<h1>Puppeteer and Playwright with your logged-in Chrome: an alternative</h1>
+<p class="lead">Puppeteer, Playwright and Selenium are excellent, but they drive a separate browser. If what you want is to automate sites where you are already logged in, there is a simpler path.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+
+<h2>What Puppeteer, Playwright and Selenium assume</h2>
+<p>These tools normally start a browser of their own, in a clean or dedicated profile. That is the right design for tests and for anything running on a server. For your own day-to-day accounts it means logging in again in that browser, dealing with 2FA and "new device" checks, and keeping a separate profile alive. Some sites also treat automation browsers with suspicion.</p>
+
+<h2>Attaching to your everyday Chrome</h2>
+<p>Puppeteer and Playwright can connect to a Chrome that was started with <code>--remote-debugging-port</code>. It works, but it has costs:</p>
+<ul>
+<li>A debugging port on your everyday browser gives every local program full control of every site, with no per-site limit.</li>
+<li>Recent Chrome versions (from Chrome 136) ignore the remote debugging switch for the default profile directory, so you have to start Chrome with a separate <code>--user-data-dir</code> and log in again. Check Chrome's current documentation, as this has changed over time.</li>
+<li>You have to start Chrome yourself, in a special way, every time.</li>
+</ul>
+
+<h2>The Tabrelay approach</h2>
+<p>Tabrelay runs inside the browser you already use. A Chrome extension carries out jobs with <code>chrome.debugger</code>, only on sites on an allow-list that you edit on the extension's own options page, and only for callers that hold a local secret token. The command line talks to a small server on <code>127.0.0.1</code> that refuses foreign Host headers and web page origins.</p>
+<table>
+<tr><th></th><th>Playwright / Puppeteer</th><th>Tabrelay</th></tr>
+<tr><td>Browser</td><td>starts its own, or attaches to a debug port</td><td>your normal Chrome profile, via an extension</td></tr>
+<tr><td>Logins and 2FA</td><td>log in again in that browser</td><td>already there</td></tr>
+<tr><td>Site limits</td><td>none by default</td><td>allow-list in the extension</td></tr>
+<tr><td>Language</td><td>Node, Python, Java, .NET (Playwright); Node (Puppeteer)</td><td>CLI, plus a Python module</td></tr>
+<tr><td>Locators, auto-waiting</td><td>yes</td><td>no; use <code>wait_for</code> and JavaScript</td></tr>
+<tr><td>Browsers</td><td>Playwright: Chromium, Firefox, WebKit</td><td>Chrome and Chromium only</td></tr>
+<tr><td>Headless, servers, CI</td><td>yes</td><td>not what it is for</td></tr>
+</table>
+
+<h2>When Tabrelay is the wrong choice</h2>
+<p>Use Playwright or Puppeteer for tests, scraping at scale, headless runs, anything on a server, and anything that needs other browsers. Tabrelay does less on purpose: no auto-waiting locators, no browser management, Chrome and Chromium only, and a page can tell that a debugger is attached.</p>
+
+<h2>When Tabrelay fits</h2>
+<ul>
+<li>Small jobs in accounts you are logged in to: posting, uploading, exporting, checking a page.</li>
+<li>Keeping a login alive with <code>keepalive.py</code>, which visits a site in an inactive background tab on a schedule.</li>
+<li>Letting a script or an <a href="/browser-automation-for-ai-agents">AI agent</a> use your session without handing it your password.</li>
+</ul>
+<p>See also <a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</a>. Get Tabrelay from the <a href="https://github.com/aaronsuns/tabrelay/releases/latest">latest release</a>.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Can Playwright use my logged-in Chrome profile?</h3>
+<p>It can attach to a Chrome started with a remote debugging port, or launch a persistent profile of its own. Neither is quite your everyday Chrome profile, and recent Chrome versions restrict remote debugging on the default profile. Check the current Playwright and Chrome documentation.</p>
+<h3>Is Tabrelay a replacement for Playwright?</h3>
+<p>No. It covers a narrow case, scripting your own logged-in Chrome, and does less: no auto-waiting locators, no browser management, and Chrome or Chromium only.</p>
+<h3>Is a remote debugging port safe?</h3>
+<p>Any local program that can reach the port can control every site in that browser. Tabrelay avoids opening one: it uses an extension with an allow-list and a local token.</p>
+<h3>Does Tabrelay need Node?</h3>
+<p>No. It needs Chrome and Python 3.10 or newer, with only the standard library.</p>
+<div class="install">
+  <a class="cta" href="https://github.com/aaronsuns/tabrelay/releases/latest" target="_blank" rel="noopener">Download Tabrelay <small>- free, MIT</small></a>
+  <p>Chrome or Chromium, Python 3.10+, macOS and Linux. <a href="https://github.com/aaronsuns/tabrelay">Source on GitHub</a>.</p>
+</div>
+</main>
+<footer>
+<p><strong>More from Tabrelay</strong></p>
+<ul><li><a href="/">Tabrelay home page</a></li><li><a href="/control-chrome-from-command-line">Control Chrome from the command line</a></li><li><a href="/browser-automation-for-ai-agents">Browser automation for AI agents</a></li><li><a href="/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome">Tabrelay vs Playwright MCP, browser-use and Claude in Chrome</a></li><li><a href="/let-ai-agent-use-logged-in-browser-safely">Let an AI agent use your logged-in browser safely</a></li><li><a href="/automate-chrome-without-stealing-focus">Automate Chrome without stealing focus</a></li></ul>
+<p>Made by Aaron Sun · <a href="https://zexa.se">Zexa</a> · <a href="https://github.com/aaronsuns/tabrelay">GitHub</a><br>Tabrelay is for automating your own browser and accounts, and is not affiliated with any site it can drive. <a href="https://github.com/aaronsuns/tabrelay/blob/main/DISCLAIMER.md">Disclaimer</a>.</p>
+</footer>
+</body>
+</html>
