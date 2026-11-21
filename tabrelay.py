@@ -44,7 +44,7 @@ from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 PORT = 47833  # fixed: the extension's host permission names it
 HERE = os.path.dirname(os.path.realpath(__file__))

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tabrelay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lets the local tabrelay command drive pages in this logged-in browser through the debugger API, only on sites you allow. Talks only to 127.0.0.1:47833; jobs must carry the local token.",
   "permissions": [
     "alarms",

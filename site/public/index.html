@@ -194,6 +194,7 @@ footer .links { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; 
     <span class="name">Tabrelay</span>
     <nav aria-label="Sections">
       <a href="#how">How it works</a>
+      <a href="#safety">Safety</a>
       <a href="#security">Security</a>
       <a href="#install">Install</a>
       <a href="#guides">Guides</a>
@@ -240,7 +241,7 @@ footer .links { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; 
         out with the Chrome DevTools Protocol, then sends the result back. Python 3.10+ standard library only,
         no build step, no npm.</p>
       <pre><code><span class="p">$ </span>tabrelay ping
-<span class="c">{"ok": true, "version": "0.1.0", "profile": "you@example.com", "sites": 1}</span>
+<span class="c">{"ok": true, "version": "0.1.1", "profile": "you@example.com", "sites": 1}</span>
 <span class="p">$ </span>TAB=$(tabrelay open https://example.com/)   <span class="c"># new background window</span>
 <span class="p">$ </span>tabrelay eval "$TAB" 'document.title'
 <span class="c">"Example Domain"</span>
@@ -250,6 +251,18 @@ footer .links { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; 
       <p>It is also a Python module: <code>evaluate</code>, <code>wait_for</code>, <code>click</code>,
         <code>fill_lines</code>, <code>set_files</code>, <code>shot</code> and raw <code>cdp</code> calls for
         your own scripts.</p>
+    </section>
+
+    <section id="safety" aria-labelledby="safety-h">
+      <h2 id="safety-h">Safety and limits</h2>
+      <div class="grid">
+        <div class="card"><h3>Per-site allow-list</h3><p>You add domains on the extension's options page. A domain covers its subdomains, only https counts, the list starts empty, and only that page can change it. Nothing the command line sends can add a site.</p></div>
+        <div class="card"><h3>What it can do there</h3><p>Everything you can do in that tab: read and change the page, fill, click, upload, screenshot. The list is per site, not per action. There is no read-only mode yet (proposed).</p></div>
+        <div class="card"><h3>What it cannot do</h3><p>Act on a tab whose URL is not allowed, navigate to a site that is not allowed, read other sites' cookies, use <code>Target.*</code> commands, or take jobs without the local token.</p></div>
+        <div class="card"><h3>It does not hide</h3><p>Chrome shows its "debugging this browser" bar, and a page can notice a debugger. Tabrelay changes only focus emulation; no user-agent or <code>navigator.webdriver</code> tricks. Each site sets its own rules on automation.</p></div>
+      </div>
+      <p>A guard rail, not a sandbox: script inside an allowed page can do what that page can do. Details in the
+        <a href="https://github.com/aaronsuns/tabrelay#safety-and-limits">README</a>.</p>
     </section>
 
     <section id="security" aria-labelledby="security-h">

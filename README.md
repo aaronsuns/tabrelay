@@ -32,8 +32,48 @@ Project page: [tabrelay.zexa.se](https://tabrelay.zexa.se) · by [Aaron Sun](htt
 
 Guides: [Control Chrome from the command line](https://tabrelay.zexa.se/control-chrome-from-command-line) · [Playwright and Puppeteer with a logged-in Chrome](https://tabrelay.zexa.se/puppeteer-playwright-alternative-logged-in-chrome) · [Browser automation for AI agents](https://tabrelay.zexa.se/browser-automation-for-ai-agents) · [Tabrelay vs Playwright MCP, browser-use and Claude in Chrome](https://tabrelay.zexa.se/tabrelay-vs-playwright-mcp-browser-use-claude-in-chrome) · [Let an AI agent use your logged-in browser safely](https://tabrelay.zexa.se/let-ai-agent-use-logged-in-browser-safely) · [Automate Chrome without stealing focus](https://tabrelay.zexa.se/automate-chrome-without-stealing-focus)
 
+## Safety and limits
+
+What the allow-list is, what it stops, and what it does not. Every line below is what the code does today.
+
+**What is allow-listed per site.** You add domains on the extension's own options page (one per
+line). A domain covers itself and its subdomains (`example.com` includes `www.example.com`); only
+`https` pages count. The list is empty on a fresh install, is stored per Chrome profile, and only
+the options page can change it: no command sent by `tabrelay` can add a site.
+
+**What Tabrelay can do on an allowed site.** Everything you can do in that tab: it attaches
+Chrome's debugger, so it can read and change the page, fill forms, click, upload files, take
+screenshots and see network traffic. The allow-list is per site, not per action: there is no
+read-only mode and no per-site permission levels.
+
+**What it cannot do.**
+
+- Act on any tab whose current URL is not allowed (checked on every command), or `open` or
+  navigate to a site that is not allowed.
+- Reach other sites' cookies: cookie commands for other sites and for all sites, clearing the
+  browser's cache or cookies, and the DevTools `Target.*` commands (other targets) are refused.
+- Take jobs from anything without the local token, or from a web page (the server only listens
+  on `127.0.0.1` and rejects page origins).
+
+**What it does not do: hide itself.** Tabrelay does not try to look like a human or to evade
+detection. While it works on a tab Chrome shows its "started debugging this browser" bar; a page
+can notice a debugger, and a site can block or limit automation. The only thing it changes about
+the page is **focus emulation** (the page is told its window has focus, so background tabs keep
+working), which a page can in principle observe. It does not change the user agent, patch
+`navigator.webdriver` or add any stealth tricks. Whether a site allows automation is its own
+rule: see the [Disclaimer](#disclaimer).
+
+**It is a guard rail, not a sandbox.** JavaScript running inside an allowed page can do whatever
+that page can do, and a program running as you can read the token. Allow only the sites a task
+needs.
+
+**Proposed, not built:** a per-site read-only mode. It is not a small change: `Runtime.evaluate`
+and input commands can write, so "read-only" would need an allow-list of safe commands per site
+and its own tests.
+
 ## Contents
 
+- [Safety and limits](#safety-and-limits)
 - [Why not Playwright, Puppeteer or Selenium?](#why-not-playwright-puppeteer-or-selenium)
 - [Install](#install)
 - [Quick start](#quick-start)
@@ -70,8 +110,8 @@ Tabrelay is **not on the Chrome Web Store**; you load it as an unpacked extensio
    - **Release:** download `tabrelay-VERSION.tar.gz` from the
      [latest release](https://github.com/aaronsuns/tabrelay/releases/latest) and unpack it:
      ```sh
-     tar -xzf tabrelay-0.1.0.tar.gz
-     cd tabrelay-0.1.0
+     tar -xzf tabrelay-0.1.1.tar.gz
+     cd tabrelay-0.1.1
      ```
    - **Git:**
      ```sh
@@ -102,7 +142,7 @@ Python 3.10 or newer. macOS and Linux are what it is used on; the core has no OS
 
 ```sh
 tabrelay ping                     # starts the local server if needed, waits for the extension
-# {"ok": true, "version": "0.1.0", "profile": "you@example.com", "sites": 1}
+# {"ok": true, "version": "0.1.1", "profile": "you@example.com", "sites": 1}
 
 TAB=$(tabrelay open https://example.com/)          # a new background window; prints the tab id
 tabrelay eval "$TAB" 'document.title'              # "Example Domain"
